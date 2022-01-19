@@ -105,7 +105,7 @@ uiData={
 }
 
 function onLoad()
- redrawUI()
+ Wait.condition(redrawUI,function()return self.type=="Bag" end)
 end
 
 function onObjectLeaveContainer(container)
