@@ -109,6 +109,16 @@ uiData={
  ["Holon's Magneton"]="1832406432242107014/2674BE166018ABCF33712816473BA1F08F0FBF9E/",
  ["Holon's Castform"]="1832406432242107778/A0DBAC1898F157597D8E67C4EF7EB1821D825050/",
 }
+uiDataFiltered={
+ ["Electrode"]="1826780185923088169/8F47AC221D9AFD36BEDABB9D9354B01BB0E4F2D6/",
+ ["Charjabug"]="1826780185923088463/B2170F2F1A2EE7E8F54E3D01A44DAAEB471196B2/"
+}
+setFilter={
+ ["Base #21"]=true,
+ ["Base Set 2 #25"]=true,
+ ["Evolutions #40"]=true,
+ ["Unbroken Bonds #58"]=true,
+}
 
 function onLoad()
  Wait.condition(redrawUI,function()return self.type=="Bag" end)
@@ -120,7 +130,7 @@ function onObjectLeaveContainer(container)
 end
 
 function tryObjectEnter(obj)
- if obj.type=='Card'and uiData[obj.getName()]then
+ if obj.type=='Card'and isAnEnergy(obj.getName(),obj.getDescription())then
   Wait.frames(function()redrawUI()end,1)
   return true
  elseif obj.type=='Deck'then
@@ -128,7 +138,7 @@ function tryObjectEnter(obj)
   local remain=nil
   cards=obj.getObjects()
   for c=#cards,1,-1 do
-   if uiData[cards[c].name]then
+   if isAnEnergy(cards[c].name,cards[c].description)then
     if remain then
      takeObj=remain
     else
@@ -140,6 +150,12 @@ function tryObjectEnter(obj)
   end
   Wait.frames(function()redrawUI()end,1)
  end
+ return false
+end
+
+function isAnEnergy(name,desc)
+ if uiData[name] then return true end
+ if uiDataFiltered[name]and setFilter[desc] then return true end
  return false
 end
 
@@ -162,7 +178,7 @@ function redrawUI()
  local c={}
 
  for k,v in pairs(energy)do
-  assets[#assets+1]={name=k,url="http://cloud-3.steamusercontent.com/ugc/"..uiData[k]}
+  assets[#assets+1]={name=k,url="http://cloud-3.steamusercontent.com/ugc/"..(uiData[k] or uiDataFiltered[k])}
   if v>1 and condensed then
    c[#c+1]=getElementText(v)
    c[#c+1]=getElementImage(k)
