@@ -108,7 +108,10 @@ uiData={
  ["Holon's Magnemite"]="1832406432242107541/8C57ECA25216C9395D14394228E49D79DDADEB27/",
  ["Holon's Magneton"]="1832406432242107014/2674BE166018ABCF33712816473BA1F08F0FBF9E/",
  ["Holon's Castform"]="1832406432242107778/A0DBAC1898F157597D8E67C4EF7EB1821D825050/",
+ ["Special Metal Energy"]="1832410242806473363/E1184183CB65B7B50356FF3E4255A0C192725C89/",
+ ["Special Darkness Energy"]="1832410242806473639/BC473132569AED6B8EDF08729EED547ED5FDB282/"
 }
+
 uiDataFiltered={
  ["Electrode"]="1826780185923088169/8F47AC221D9AFD36BEDABB9D9354B01BB0E4F2D6/",
  ["Charjabug"]="1826780185923088463/B2170F2F1A2EE7E8F54E3D01A44DAAEB471196B2/"
@@ -118,6 +121,10 @@ setFilter={
  ["Base Set 2 #25"]=true,
  ["Evolutions #40"]=true,
  ["Unbroken Bonds #58"]=true,
+}
+specialFilter={
+ ["Darkness Energy"]=true,
+ ["Metal Energy"]=true
 }
 
 function onLoad()
@@ -132,6 +139,7 @@ end
 function tryObjectEnter(obj)
  if obj.type=='Card'and isAnEnergy(obj.getName(),obj.getDescription())then
   Wait.frames(function()redrawUI()end,1)
+  Wait.frames(function()redrawUI()end,5)
   return true
  elseif obj.type=='Deck'then
   local takeObj=nil
@@ -149,6 +157,7 @@ function tryObjectEnter(obj)
    end
   end
   Wait.frames(function()redrawUI()end,1)
+  Wait.frames(function()redrawUI()end,5)
  end
  return false
 end
@@ -164,7 +173,13 @@ function countEnergyInBag()
  total=0
  objs=self.getObjects()
  for k,v in pairs(objs)do
-  energy[v.name]=(energy[v.name]or 0)+1
+  local name=v.name
+  if string.sub(v.gm_notes,1,1)=="8"then
+   if specialFilter[name] then
+    name="Special "..name
+   end
+  end
+  energy[name]=(energy[name]or 0)+1
   total=total+1
  end
  return total
@@ -246,7 +261,7 @@ end
 function clickCard(player,n)
  objs=self.getObjects()
  for k,v in pairs(objs)do
-  if v~=nil and v.name==n then
+  if v~=nil and checkCardName(v,n) then
    self.takeObject({guid=v.guid,position=self.positionToWorld({2.2,0,2.59}),rotation=self.getRotation()})
    break
   end
@@ -256,7 +271,7 @@ end
 function dragCard(player,n)
  objs=self.getObjects()
  for k,v in pairs(objs)do
-  if v~=nil and v.name==n then
+  if v~=nil and checkCardName(v,n) then
    playpos=player.getPointerPosition()
    playpos.y=playpos.y+1
    self.takeObject({guid=v.guid,position=playpos,rotation={0,player.getPointerRotation(),0},smooth=false})
@@ -282,5 +297,17 @@ function dragAll(player)
    playpos.y=playpos.y+1
    self.takeObject({guid=v.guid,position=playpos,rotation={0,player.getPointerRotation(),0},smooth=false})
   end
+ end
+end
+
+function checkCardName(card,name)
+ if specialFilter[card.name]then
+  if string.sub(name,1,8)=="Special " then
+   return(card.name==string.sub(name,9,#name) and string.sub(card.gm_notes,1,1)=="8")
+  else
+   return (card.name==string.sub(name,1,#name) and string.sub(card.gm_notes,1,1)=="7")
+  end
+ else
+  return card.name==name
  end
 end
