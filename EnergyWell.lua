@@ -112,8 +112,8 @@ energyUI={
  ["Special Darkness Energy"]="1832410242806473639/BC473132569AED6B8EDF08729EED547ED5FDB282",
 }
 energyUIFiltered={
- ["Electrode"]="1826780185923088169/8F47AC221D9AFD36BEDABB9D9354B01BB0E4F2D6",
- ["Charjabug"]="1826780185923088463/B2170F2F1A2EE7E8F54E3D01A44DAAEB471196B2"
+ Electrode="1826780185923088169/8F47AC221D9AFD36BEDABB9D9354B01BB0E4F2D6",
+ Charjabug="1826780185923088463/B2170F2F1A2EE7E8F54E3D01A44DAAEB471196B2"
 }
 toolUI={
  ["Defender"]="1829033806579851023/6F8CED874CEF9E58A88FE1C651EF3F7813209187",
@@ -346,14 +346,14 @@ toolUI={
  ["Supereffective Glasses"]="1827911076764611330/370E4D9AF0329DC2B9B04F4C3A79558BEF76728B",
 }
 toolUIFiltered={
- ["Klefki"]="1829034336112395603/B07DB6CF60F329FDAED655801B8A0700A9C5C529",
- ["Shedinja"]="1829034336112395899/09A0E7A3172D0FF0D2E8D5C66B4583FFB277D147"
+ Klefki="1829034336112395603/B07DB6CF60F329FDAED655801B8A0700A9C5C529",
+ Shedinja="1829034336112395899/09A0E7A3172D0FF0D2E8D5C66B4583FFB277D147"
 }
 setFilter={
- ["Electrode"]={"Base","Evolutions #40"},
- ["Klefki"]={"Steam Siege #80"},
- ["Shedinja"]={"Lost Thunder #95"},
- ["Charjabug"]={"Unbroken Bonds #58"},
+ Electrode={"Base","Evolutions #40"},
+ Klefki={"Steam Siege #80"},
+ Shedinja={"Lost Thunder #95"},
+ Charjabug={"Unbroken Bonds #58"},
 }
 specialFilter={
  ["Darkness Energy"]=true,
@@ -361,7 +361,7 @@ specialFilter={
 }
 
 function onLoad()
- Wait.condition(redrawUI,function()return self.type=="Bag" end)
+ Wait.condition(redrawUI,function()return self.type=="Bag"end)
 end
 
 deleting=false
@@ -371,9 +371,9 @@ end
 
 function tryObjectEnter(obj)
  if obj.type=='Card'and isAttachment(obj.getName(),obj.getDescription())then
-  Wait.frames(function()redrawUI()end,1)
-  Wait.frames(function()redrawUI()end,5)
-  Wait.frames(function()redrawUI()end,60)
+  Wait.frames(redrawUI,1)
+  Wait.frames(redrawUI,5)
+  Wait.frames(redrawUI,60)
   return true
  elseif obj.type=='Deck'then
   local takeObj=nil
@@ -390,9 +390,9 @@ function tryObjectEnter(obj)
     self.putObject(takeObj)
    end
   end
-  Wait.frames(function()redrawUI()end,1)
-  Wait.frames(function()redrawUI()end,5)
-  Wait.frames(function()redrawUI()end,60)
+  Wait.frames(redrawUI,1)
+  Wait.frames(redrawUI,5)
+  Wait.frames(redrawUI,60)
  end
  return false
 end
@@ -409,11 +409,7 @@ function countCardsInBag()
  for k,v in pairs(objs)do
   local name=v.name
   if energyUI[name]or energyUIFiltered[name] then
-   if startsWith(v.gm_notes,"8")then
-    if specialFilter[name] then
-     name="Special "..name
-    end
-   end
+   if startsWith(v.gm_notes,"8") and specialFilter[name]then name="Special "..name end
    energy[name]=(energy[name]or 0)+1
    totalEnergy=totalEnergy+1
   else
@@ -436,9 +432,7 @@ function redrawUI()
    e[#e+1]=getElementImage(k,600)
    e[#e+1]=getElementText(v)
   else
-   for i=1,v do
-    e[#e+1]=getElementImage(k,600)
-   end
+   for i=1,v do e[#e+1]=getElementImage(k,600)end
   end
  end
  local wide=false
@@ -456,7 +450,9 @@ function redrawUI()
 end
 
 function setXml(e,t,wide)
- XMLTable={{tag="HorizontalLayout",
+ XMLTable={{
+  tag="HorizontalLayout",
+  children=e,
   attributes={
    height=675,
    width=2800,
@@ -467,9 +463,7 @@ function setXml(e,t,wide)
    childForceExpandHeight=false,
    childAlignment="MiddleLeft",
    padding="35 330 35"
-  },
-  children=e
- }}
+  }}}
  if #e!=0 or #t!=0 then
   XMLTable[2]={
    tag="Image",
@@ -496,7 +490,9 @@ function setXml(e,t,wide)
   local tHieght=540*#t+350
   local tWidth=0
   if wide then tWidth=230 end
-  XMLTable[#XMLTable+1]={tag="VerticalLayout",
+  XMLTable[#XMLTable+1]={
+   tag="VerticalLayout",
+   children=t,
    attributes={
     height=tHieght,
     width=675+tWidth,
@@ -507,10 +503,8 @@ function setXml(e,t,wide)
     color="rgba(0,0,0,0.7)",
     padding="35 35 35 315",
     childAlignment="LowerLeft",
-   },
-  children=t
-  }
-  end
+  }}
+ end
  self.UI.setXmlTable(XMLTable)
 end
 
@@ -522,8 +516,7 @@ function getElementText(num)
    fontSize=250,
    resizeTextMaxSize=250,
    text="*"..num,
-  },
- }
+ }}
 end
 
 function getElementImage(name,height)
@@ -537,24 +530,24 @@ function getElementImage(name,height)
    restrictDraggingToParentBounds=false,
    onClick="clickCard("..name..")",
    onEndDrag="dragCard("..name..")",
-  }}
+ }}
 end
 
 function getToolFrame(c)
- return{tag="HorizontalLayout",
+ return{
+  tag="HorizontalLayout",
+  children=c,
   attributes={
    color="rgba(0,0,0,0)",
    childAlignment="LowerCenter",
-  },
-  children=c
- }
+ }}
 end
 
 function clickCard(player,n)
  objs=self.getObjects()
  for k,v in pairs(objs)do
   if v~=nil and checkCardName(v,n) then
-   self.takeObject({guid=v.guid,position=self.positionToWorld({13.15,0,16}),rotation=self.getRotation()})
+   removeCard(v.guid,self.positionToWorld({13.15,0,16}),self.getRotation())
    break
   end
  end
@@ -566,7 +559,7 @@ function dragCard(player,n)
   if v~=nil and checkCardName(v,n) then
    playpos=player.getPointerPosition()
    playpos.y=playpos.y+1
-   self.takeObject({guid=v.guid,position=playpos,rotation={0,player.getPointerRotation(),0},smooth=false})
+   removeCard(v.guid,playpos,{0,player.getPointerRotation(),0})
    break
   end
  end
@@ -575,29 +568,29 @@ end
 function clickAll(player)
  objs=self.getObjects()
  for k,v in pairs(objs)do
-  if v~=nil then
-   self.takeObject({guid=v.guid,position=self.positionToWorld({13.15,0,16}),rotation=self.getRotation()})
-  end
+  if v~=nil then removeCard(v.guid,self.positionToWorld({13.15,0,16}),self.getRotation())end
  end
 end
 
 function dragAll(player)
  objs=self.getObjects()
+ playpos=player.getPointerPosition()
+ playpos.y=playpos.y+1
  for k,v in pairs(objs)do
-  if v~=nil then
-   playpos=player.getPointerPosition()
-   playpos.y=playpos.y+1
-   self.takeObject({guid=v.guid,position=playpos,rotation={0,player.getPointerRotation(),0},smooth=false})
-  end
+  if v~=nil then removeCard(v.guid,playpos,{0,player.getPointerRotation(),0})end
  end
+end
+
+function removeCard(guid,pos,rot)
+ self.takeObject({guid=guid,position=pos,rotation=rot,smooth=false})
 end
 
 function checkCardName(card,name)
  if specialFilter[card.name]then
   if startsWith(name,"Special ")then
-   return(card.name==string.sub(name,9,#name) and string.sub(card.gm_notes,1,1)=="8")
+   return(card.name==string.sub(name,9,#name)and string.sub(card.gm_notes,1,1)=="8")
   else
-   return (card.name==string.sub(name,1,#name) and string.sub(card.gm_notes,1,1)=="7")
+   return (card.name==string.sub(name,1,#name)and string.sub(card.gm_notes,1,1)=="7")
   end
  else
   return card.name==name
@@ -606,9 +599,7 @@ end
 
 function startsWithInTable(input,prefix)
  for _,str in pairs(prefix)do
-  if startsWith(input,str) then
-   return true
-  end
+  if startsWith(input,str)then return true end
  end
  return false
 end
@@ -620,7 +611,5 @@ end
 function onDestroy()
  deleting=true
  local numCards=self.getQuantity()
- for c=numCards,1,-1 do
-  self.takeObject({index=0,position=self.positionToWorld{0,0,0}})
- end
+ for c=numCards,1,-1 do self.takeObject({index=0,position=self.positionToWorld{0,0,0}})end
 end
