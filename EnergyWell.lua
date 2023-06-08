@@ -122,6 +122,10 @@ energyUI={
  ["Basic Metal Energy"]="1030706086614178951/97976CC1484C2344BF88BC4EDFCB5E4A74594199",
  ["Basic Psychic Energy"]="1030706086614179070/5936733CF9AA0FEC120262A82643501F5D98BC01",
  ["Basic Water Energy"]="1030706086614179173/A6197B243E1F67E908D76B837FC3EDCCCDD399EC",
+ ["Jet Energy"]="2029481402800694543/95AD7BFED67BE9836D62AD49F848465BC21B803E",
+ ["Reversal Energy"]="2029481402800701076/014B377B30DAB9E0424CCAA4429FE72414AD9FC0",
+ ["Luminous Energy"]="2029481402800707102/056C01022AF9BA02183923D19F727C94FC45D780",
+ ["Theraputic Energy"]="2029481402800732009/3F88E5E7B97994D74BFEEE639E7F0A75F54C360D",
 }
 energyUIFiltered={
  ["Electrode~Base"]="1826780185923088169/8F47AC221D9AFD36BEDABB9D9354B01BB0E4F2D6",
@@ -367,6 +371,7 @@ toolUI={
  ["Sky Seal Stone"]="2012580224554736408/20BC10CBCC1320E79DCBDD539CF09EDACF3D5B48",
  ["Defiant Band"]="2038482440041482523/AAF9A5015FECEB0F33C25522BC934B86D9F6EAD0",
  ["Rock Chestplate"]="2038482440041483050/22C5E6CBC94CAFE6203FED9557EA9581EE55CEAC",
+ ["Bravery Charm"]="2029481402800688037/BC411C4D3B5C1210FFB9BE0975A4702A4BD888F9",
 }
 toolUIFiltered={
  ["Klefki~Steam S"]="1829034336112395603/B07DB6CF60F329FDAED655801B8A0700A9C5C529",
@@ -601,21 +606,32 @@ function dragCard(player,alt,id)
 end
 
 function clickAll(player)
- emptyWell({self.positionToWorld({-13.15,0,16}),self.getRotation()})
+ local rot=self.getRotation()
+ emptyWell({self.positionToWorld({-10.15,0,16}),rot,self.positionToWorld({-29,0,16}),rot})
 end
 
 function dragAll(player)
- playpos=player.getPointerPosition()
+ local playpos=player.getPointerPosition()
  playpos.y=playpos.y+1
- emptyWell({playpos,{0,player.getPointerRotation(),0}})
+ local flarePos=player.getPointerPosition()
+ flarePos.y=flarePos.y+2
+ emptyWell({playpos,{0,player.getPointerRotation(),0},flarePos,{0,player.getPointerRotation()+90,0}})
 end
 
 function emptyWell(posRot)
  local pos=posRot[1]
  local rot=posRot[2]
+ local flarePos=posRot[3]
+ local flareRot=posRot[4]
  objs=self.getObjects()
  for k,v in pairs(objs)do
-  if v~=nil then removeCard(v.guid,pos,rot)end
+  if v~=nil then
+   if endsWith(v.name,"Hyper Gear")then
+    removeCard(v.guid,flarePos,flareRot)
+   else
+    removeCard(v.guid,pos,rot)
+   end
+  end
  end
 end
 
@@ -644,6 +660,10 @@ end
 
 function startsWith(input,prefix)
  return string.sub(input,1,#prefix)==prefix
+end
+
+function endsWith(input,suffix)
+ return string.sub(input,#input-(#suffix-1),#input)==suffix
 end
 
 function onDestroy()
